@@ -15,5 +15,13 @@ services:
       TZ: "${TZ}"
     platform: "linux/x86_64"
 
+  migrator:
+    build:
+      context: ./docker/migrator
+      dockerfile: Dockerfile
+    volumes:
+      - "./db/migrations:/migrations"
+    tty: true
+
 volumes:
   db-data:
