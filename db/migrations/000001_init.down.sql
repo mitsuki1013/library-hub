@@ -1,2 +1,3 @@
+DROP TABLE IF EXISTS `library`;
 DROP TABLE IF EXISTS `offices`;
 DROP TABLE IF EXISTS `companies`;
