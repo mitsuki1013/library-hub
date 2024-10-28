@@ -16,7 +16,7 @@ CREATE TABLE `offices`
             ON UPDATE CASCADE
 );
 
-CREATE TABLE `library`
+CREATE TABLE `books`
 (
     `id`        CHAR(26) PRIMARY KEY,
     `name`      VARCHAR(255),
