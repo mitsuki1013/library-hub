@@ -1,43 +1,32 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
-	"io"
-	"library-hub/app/adapter/api/schema"
+	"github.com/gorilla/mux"
+	"gorm.io/gorm"
+	"library-hub/app/adapter/api/action"
+	"library-hub/app/adapter/repository"
+	"library-hub/app/usecase"
+	"log"
 	"net/http"
+	"time"
 )
 
 func main() {
-	http.HandleFunc("/company", CreateCompany)
-	if err := http.ListenAndServe(":8080", nil); err != nil {
-		fmt.Println("Error starting server:", err)
-	}
-}
+	r := mux.NewRouter()
+	db := &gorm.DB{}
+	uc := usecase.NewCreateCompanyInteractor(
+		repository.NewCompanyMySQL(db),
+	)
+	act := action.NewCreateCompanyAction(uc)
+	r.HandleFunc("/company", act.CreateCompany).Methods(http.MethodPost)
 
-func CreateCompany(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
-		return
-	}
-
-	body, err := io.ReadAll(r.Body)
-	if err != nil {
-		http.Error(w, "Error reading request body", http.StatusInternalServerError)
-		return
-	}
-	defer r.Body.Close()
-
-	var requestData schema.Company
-	if err = json.Unmarshal(body, &requestData); err != nil {
-		http.Error(w, "Error parsing request json", http.StatusBadRequest)
-		return
+	// サーバ設定
+	srv := &http.Server{
+		Handler:      r,
+		Addr:         "127.0.0.1:8080",
+		WriteTimeout: 15 * time.Second,
+		ReadTimeout:  15 * time.Second,
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	if err := json.NewEncoder(w).Encode(requestData); err != nil {
-		http.Error(w, "Error encoding response json", http.StatusInternalServerError)
-		return
-	}
+	log.Fatal(srv.ListenAndServe())
 }
