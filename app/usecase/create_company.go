@@ -29,8 +29,16 @@ func NewCreateCompanyInteractor(
 }
 
 func (c createCompanyInteractor) Execute(input CreateCompanyInput) (CreateCompanyOutput, error) {
-	return CreateCompanyOutput{
+	output, err := c.repo.Create(domain.Company{
 		ID:   input.ID,
 		Name: input.Name,
+	})
+	if err != nil {
+		return CreateCompanyOutput{}, err
+	}
+
+	return CreateCompanyOutput{
+		ID:   output.ID,
+		Name: output.Name,
 	}, nil
 }

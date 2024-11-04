@@ -14,5 +14,8 @@ func NewCompanyMySQL(db *gorm.DB) *CompanyMySQL {
 }
 
 func (c CompanyMySQL) Create(company domain.Company) (domain.Company, error) {
+	if err := c.db.Create(&company).Error; err != nil {
+		return domain.Company{}, err
+	}
 	return company, nil
 }
